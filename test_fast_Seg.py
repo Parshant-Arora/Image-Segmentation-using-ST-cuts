@@ -36,7 +36,6 @@ lab_bins = [32, 32, 32]
 
 
 class SPNode():
-	"""docstring for SPNode"""
 
 	def __init__(self):
 		self.label = None
@@ -54,7 +53,7 @@ class SPNode():
 
 def mark_seeds(event, x, y, flags, param):
 	global drawing, mode, marked_bg_pixels, marked_ob_pixels, I_dummy
-	h, w, c = I_dummy.shape
+	h, w, _ = I_dummy.shape
 
 	if event == cv2.EVENT_LBUTTONDOWN:
 		drawing = True
@@ -77,8 +76,6 @@ def mark_seeds(event, x, y, flags, param):
 
 
 def gen_sp_slic(I, region_size_):
-	# Superpixel Generation ::  Slic superpixels compared to state-of-the-art superpixel methods
-	SLIC = 100
 	SLICO = 101
 	num_iter = 4
 	sp_slic = cv2.ximgproc.createSuperpixelSLIC(
@@ -88,23 +85,12 @@ def gen_sp_slic(I, region_size_):
 	return sp_slic
 
 
-def draw_sp_mask(I, SP):
-	I_marked = np.zeros(I.shape)
-	I_marked = np.copy(I)
+def draw_centroids(I, SP, SP_list):
 	mask = SP.getLabelContourMask()
-	for i in range(mask.shape[0]):
-		for j in range(mask.shape[1]):
-			# SLIC/SLICO marks borders with -1 :: SEED marks borders with 255
-			if mask[i][j] == -1 or mask[i][j] == 255:
-				I_marked[i][j] = [128, 128, 128]
-	return I_marked
-
-
-def draw_centroids(I, SP_list):
-	for each in SP_list:
-		if each != None:
-			i, j = each.centroid
-			I[i][j] = 128
+	I[ mask == -1 ] = [128,128,128]
+	I[ mask == 255] = [128,128,128]
+	for each in SP_list:  
+		I[each.centroid] = 128
 	return I
 
 
@@ -163,7 +149,7 @@ def main():
 	inputfile = args.img
 	print('Using image: ', inputfile)
 
-	I = cv2.imread(inputfile)  # imread wont rise exceptions by default
+	I = cv2.imread('./images/input/'+inputfile)  # imread wont rise exceptions by default
 	I_dummy = np.copy(I)
 
 	h, w, c = I.shape
@@ -200,44 +186,33 @@ def main():
 				SP_list[SP_labels[i][j]] = SPNode()
 				SP_list[SP_labels[i][j]].label = SP_labels[i][j]
 
-			SP_list[SP_labels[i][j]].pixels.append([i, j])
-
+			SP_list[SP_labels[i][j]].pixels.append((i, j))
+	SP_list = list(filter(None, SP_list))
 	for sp in SP_list:
-		if sp != None:
 			n_pixels = len(sp.pixels)
-			i_sum = 0
-			j_sum = 0
-			lab_sum = [0, 0, 0]
+			i_sum,j_sum = np.sum(sp.pixels , (0))
+			lab_sum = np.zeros(3)
 			tmp_mask = np.zeros((h, w), np.uint8)
 			for each in sp.pixels:
-				i, j = each
-				i_sum += i
-				j_sum += j
-				lab_sum = [x + y for x, y in zip(lab_sum, I_lab[i][j])]
-				tmp_mask[i][j] = 255
+				lab_sum = lab_sum + I_lab[each]
+				tmp_mask[each] = 255
 			sp.lab_hist = cv2.calcHist([I_lab], [0, 1, 2], tmp_mask, lab_bins, l_range+a_range+b_range)
 			sp.centroid += (i_sum//n_pixels, j_sum//n_pixels,)
-			sp.mean_lab = [x/n_pixels for x in lab_sum]
+			sp.mean_lab = lab_sum / n_pixels
 			sp.real_lab = [sp.mean_lab[0]*100/255,
 			    sp.mean_lab[1]-128, sp.mean_lab[2]-128]
-
-	for pixels in marked_ob_pixels:
-		x, y = pixels
-		SP_list[SP_labels[x][y]].type = "ob"
-	for pixels in marked_bg_pixels:
-		x, y = pixels
-		SP_list[SP_labels[x][y]].type = "bg"
-	I_marked = draw_sp_mask(I, SP)
-	I_marked = draw_centroids(I_marked, SP_list)
-
 	mask_ob = np.zeros((h, w), dtype=np.uint8)
-	for pixels in marked_ob_pixels:
-		i, j = pixels
-		mask_ob[i][j] = 255
 	mask_bg = np.zeros((h, w), dtype=np.uint8)
+
+	for pixels in marked_ob_pixels:
+		SP_list[SP_labels[pixels]].type = "ob"
+		mask_ob[pixels] = 255
 	for pixels in marked_bg_pixels:
-		i, j = pixels
-		mask_bg[i][j] = 255
+		SP_list[SP_labels[pixels]].type = "bg"
+		mask_bg[pixels] = 255
+
+	I_marked = draw_centroids(I,SP, SP_list)
+
 
 	hist_ob = cv2.calcHist([I_lab], [0, 1, 2], mask_ob,
 	                       lab_bins, l_range+a_range+b_range)
@@ -245,7 +220,6 @@ def main():
 	hist_bg = cv2.calcHist([I_lab], [0, 1, 2], mask_bg,
 	                       lab_bins, l_range+a_range+b_range)
 
-	print(hist_bg.shape)
 	G = gen_graph(I_lab, SP_list, hist_ob, hist_bg)
 
 	for each in G.nodes():
@@ -256,24 +230,21 @@ def main():
 	# global algo
 	if algo == "bk":
 		RG = boykov_kolmogorov.boykov_kolmogorov(G, s, t, capacity='sim')
-		source_tree, target_tree = RG.graph['trees']
-		partition = (set(source_tree), set(G) - set(source_tree))
-		sp_label_list = partition[0]
+		source_tree, _ = RG.graph['trees']
+		source_label_list = set(source_tree)
 	else:
-		sp_label_list = ff.ford_fulkerson(G, s, t)
+		source_label_list = ff.ford_fulkerson(G, s, t)
 
 	F = np.zeros((h, w), dtype=np.uint8)
  
-	for sp in sp_label_list:
+	for sp in source_label_list:
 		for pixels in sp.pixels:
-			i,j = pixels 
-			F[i][j] = 1
+			F[pixels] = 1
 	Final = cv2.bitwise_and(I, I, mask=F)
 	print("------------------\n","Time taken : ",time.process_time() - start,"\n------------------")
 	global acc 
 	if(acc=="y"):
-		mask_actual_img = cv2.imread('./masks/bunny_mask.png')
-		print(inputfile.split('.'))
+		mask_actual_img = cv2.imread('./images/masks/'+inputfile.split('.')[0]+'_mask.png')
 		mask_actual = np.zeros((h,w))
 		for i in range(h):
 			for j in range(w):
@@ -290,8 +261,7 @@ def main():
 	sp_lab=np.zeros(I.shape,dtype=np.uint8)
 	for sp in SP_list:
 		for pixels in sp.pixels:
-			i,j=pixels
-			sp_lab[i][j]=sp.mean_lab
+			sp_lab[pixels]=sp.mean_lab
 	sp_lab=cv2.cvtColor(sp_lab, cv2.COLOR_Lab2RGB)
 	
 	plt.subplot(2,2,1)
@@ -319,7 +289,7 @@ def main():
 
 
 	
-	cv2.imwrite("out.png",Final)
+	cv2.imwrite("./images/output/"+inputfile.split('.')[0]+"_output.png",Final)
 	plt.show()
 
 if __name__ == '__main__':
