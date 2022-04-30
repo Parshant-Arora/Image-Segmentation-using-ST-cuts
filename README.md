@@ -1,3 +1,10 @@
+## Project Description:
+
+This is the course project for Medical Image Computing (CS736) wheren we explored different methods for performing image segmentation using s-t cuts. Essentially imgae segmentation using s-t cuts involves the use of max-flow min-cut algoithms to segment a given image into two segments pertaining to foreground or background. The general algorithm uses a graph modelled on the image and pixels as it is. We modify this algorithm by introducing superpixels on the graph that essentially clusters various pixels that share similar charateristics. This is followed by use of a different more efficient graph-cut algorithm namely Boykov-Kolmogorov algorithm. 
+
+We compare the results of these with various cases where we use Boykov with and without super-pixelization and compare the results with Ford-dulkerson with and without sp. The metrics on which we compare the results are time taken and accuracy. Accuracy is measured on the basis of difference between a manually created mask and the algo generated mask. 
+
+
 ## Dependencies:
 
 1. System wide dependencies
