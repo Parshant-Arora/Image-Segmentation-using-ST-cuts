@@ -14,7 +14,7 @@ All dependencies are enlisted in requirements.txt
 
 ## Executing the code:
 
-**Naming convention**
+###Naming convention
 
 1. **image.png** - to be segmented
 2. **image_mask.png** - mask, which is used for determining accuracy of the result obtained 
@@ -26,7 +26,7 @@ All dependencies are enlisted in requirements.txt
 
 	● Extension need not be png
 	
-**Runtime Commands**
+##Runtime Commands
 
 **fast_seg.py**
 The main code used to produce the segmentation results. command-line arguments
@@ -42,12 +42,12 @@ The main code used to produce the segmentation results. command-line arguments
 
 **Note:**
 
-● To use the accuracy metric, mask used for measuring accuracy should be present in the same path folder as the image needed to be segmented.
-● All the arguments mentioned above are required.
-● Install all the dependencies before running the program (refer to requirements.txt)
+1. To use the accuracy metric, mask used for measuring accuracy should be present in the same path folder as the image needed to be segmented.
+2. All the arguments mentioned above are required.
+3. Install all the dependencies before running the program (refer to requirements.txt)
 
 
-**Other files**
+###Other files
 
 1. **boykov_kolmogorov.py** : used for obtaining min cut using boykov kolmogorov algorithm 
 2. **ff.py** : used for obtaining min cut using ford fulkerson algorithm
