@@ -22,7 +22,8 @@ All dependencies are enlisted in requirements.txt
 	4. **image_seg.png** - output image
 	
 
-**Note:**	
+**Note:**
+
 	● Extension need not be png
 	
 **Runtime Commands**
