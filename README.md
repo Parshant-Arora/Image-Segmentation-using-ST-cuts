@@ -9,7 +9,7 @@ We compare the results of these with various cases where we use Boykov with and 
 
 All dependencies are enlisted in requirements.txt
 	
-	Install them using : `pip install -r requirements.txt`
+	pip install -r requirements.txt
 
 
 ## Executing the code:
@@ -24,7 +24,7 @@ All dependencies are enlisted in requirements.txt
 
 **Note:**
 
-	● Extension need not be png
+Extension need not be png
 	
 **Runtime Commands**
 
