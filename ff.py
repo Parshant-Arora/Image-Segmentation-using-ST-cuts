@@ -1,8 +1,7 @@
 import numpy as np
 
-def searching_algo_BFS(graph, s, t, parent, row):
+def bfs(graph, s, t, parent, row):
         visited = [False] * (row)
-        #print(visited)
         queue = []
 
         queue.append(s)
@@ -10,9 +9,7 @@ def searching_algo_BFS(graph, s, t, parent, row):
 
         while queue:
             u = queue.pop(0)
-
             for ind, val in enumerate(graph[u]):
-                #print(ind,val)
                 if visited[ind] == False and val > 0:
                     queue.append(ind)
                     visited[ind] = True
@@ -41,30 +38,23 @@ def ford_fulkerson(G, source, sink):
                 node_to_label[nodes] = ind
                 label_to_node[ind] = nodes
         
-        #print("--------")
         graph = np.zeros([len(list(G.nodes)),len(list(G.nodes))])
 
         for u,v in G.edges:
             graph[node_to_label[u]][node_to_label[v]] = G[u][v]['sim']
             graph[node_to_label[v]][node_to_label[u]] = G[u][v]['sim']
 
-        while searching_algo_BFS(graph, node_to_label[source], node_to_label[sink], parent, len(list(G.nodes))):
+        while bfs(graph, node_to_label[source], node_to_label[sink], parent, len(list(G.nodes))):
 
             path_flow = float("Inf")
             s = node_to_label[sink]
             while(s != node_to_label[source]):
-                #print("got node", s)
                 path_flow = min(path_flow, graph[parent[s]][s])
                 s = parent[s]
                 
                 
 
-            # Adding the path flows
             max_flow += path_flow
-            #print(max_flow)
-            #print("pf", path_flow)
-
-            # Updating the residual values of edges
             v = node_to_label[sink]
             while(v != node_to_label[source]):
                 u = parent[v]
@@ -72,9 +62,6 @@ def ford_fulkerson(G, source, sink):
                 graph[v][u] += path_flow
                 v = parent[v]
 
-        # for i in range(1 , len(list(G.nodes))):
-        #     for j in range(1,len(list(G.nodes))):
-        #         G[label_to_node[i]][label_to_node[j]]['sim'] = graph[i][j]
         V = len(list(G.nodes))
         visited = np.zeros(V, dtype=bool)
         SP_list = []

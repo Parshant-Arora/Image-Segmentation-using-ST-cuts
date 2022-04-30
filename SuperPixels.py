@@ -8,7 +8,6 @@ def is_inside(x,y,h,w):
 
 def CreateSP(Img, region_size):
     I = np.array(Img, dtype=np.int64)
-    # I.astype(np.int64) 
     h = I.shape[0]
     w = I.shape[1]
     N = I.shape[0] * I.shape[1]
@@ -25,10 +24,8 @@ def CreateSP(Img, region_size):
             x = S*i - S//2
             y = S*j - S//2
             if x < h and y < w:
-                # I[x][y] = (0,0,255)
                 SP_dict[SP_cnt] = (x, y)
                 SP_cnt += 1
-    # print(SP_dict)
     for sp in SP_dict:
         x, y = SP_dict[sp]
         print(x, y, sp)
@@ -43,39 +40,23 @@ def CreateSP(Img, region_size):
                     if D < d[i][j]:
                         d[i][j] = D
                         labels[i][j] = sp
-                        # print(sp)
     SP_mean = {}
     SP_pixel_cnt = {}
     for x in range(0, h):
         for y in range(0, w):
             sp = labels[x][y]
             if sp in SP_mean:
-                # print("yes ", sp ," is in Sp mean")
-                # print(SP_mean[sp])
-                # print(I[x][y])
                 SP_mean[sp] = SP_mean[sp]+ I[x][y]
-                # print(SP_mean[sp])
                 SP_pixel_cnt[sp] += 1
             else:
                 SP_mean[sp] = I[x][y]
                 SP_pixel_cnt[sp] = 1
     for sp in SP_mean:
-        # print("Sp sum,cnt ", SP_mean[sp], SP_pixel_cnt[sp])
         SP_mean[sp] = SP_mean[sp]/SP_pixel_cnt[sp]
     for x in range(0,h):
         for y in range(0,w):
             sp = labels[x][y]
             I[x][y] = SP_mean[sp]
-            # if (is_inside(x+1,y,h,w) and labels[x+1][y] != labels[x][y]) or (is_inside(x-1,y,h,w) and labels[x-1][y] != labels[x][y]) or (is_inside(x,y+1,h,w) and labels[x][y+1] != labels[x][y]) or (is_inside(x,y-1,h,w) and labels[x][y-1] != labels[x][y]):
-            #     I[x][y] = [128,128,128]
-                
-            
-            
-            # print("Mean", I[x][y])
-    if -1 in labels:
-        print("Sad")
-    else:
-        print("yay")    
     
     
         
@@ -86,20 +67,4 @@ Img = cv2.imread('bunny.png')
 print(Img.shape)
 region_size = 30
 I = CreateSP(Img, region_size)
-
-# cv2.imshow("hi", I*255)
-# cv2.waitKey(0)
-# print(labels[1:10][1:10])
-# print(labels.shape)
-# print(labels)
-
-# cv2.imshow("hi", labels/500)
-# cv2.waitKey(0)
-
-    
-# print(labels[labels==-1])
-
-# cv2.imshow("hi", np.array(I, dtype = np.uint8))
-# cv2.waitKey(0)
-
 cv2.imwrite('bunny' + str(region_size) + '.png', I)
