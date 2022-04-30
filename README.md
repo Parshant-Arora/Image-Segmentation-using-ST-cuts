@@ -22,6 +22,14 @@ All dependencies are enlisted in requirements.txt
 4. Output image will be written in running folder, named "out.png"
 
 
+## Results 
+
+The segmented images:
+<img width="851" alt="Screenshot 2022-04-30 at 3 16 03 PM" src="https://user-images.githubusercontent.com/81502104/166100587-dd14d19f-c660-4531-8c05-f84e299d3f16.png">
+
+Comparison:
+<img width="938" alt="Screenshot 2022-04-30 at 3 17 31 PM" src="https://user-images.githubusercontent.com/81502104/166100609-d21ace06-6e7b-41a9-adc1-300fbc381fcd.png">
+
 
 ## Research paper:
 Research paper that we referred can be downloaded from [here](https://www.ijitee.org/wp-content/uploads/papers/v8i8/H7423068819.pdf).
