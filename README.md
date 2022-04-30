@@ -30,13 +30,13 @@ All dependencies are enlisted in requirements.txt
 
 **fast_seg.py**
 The main code used to produce the segmentation results. command-line arguments
-**-i / --img** : -i <path to input image>
-**-a / --algo** : values “bk”/”ff”
-**“bk”** - used to perform segmentation using boykov kolmogorov algorithm
-**“ff”** - used to perform segmentation using ford fulkerson algorithm -s/ --sp_en : values“y”/”n”
-**“y”** - used to enable superpixalization
-**“n”** - used to disable superpixalization -ac / --acc : values“y”/”n”
-**“y”** - used to enable accuracy metric “n” - used to disable accuracy metric
+1. **-i / --img** : -i <path to input image>
+2. **-a / --algo** : values “bk”/”ff”
+3. **“bk”** - used to perform segmentation using boykov kolmogorov algorithm
+4. **“ff”** - used to perform segmentation using ford fulkerson algorithm -s/ --sp_en : values“y”/”n”
+5. **“y”** - used to enable superpixalization
+6. **“n”** - used to disable superpixalization -ac / --acc : values“y”/”n”
+7. **“y”** - used to enable accuracy metric “n” - used to disable accuracy metric
 
 **Example:** python3 fast_seg.py -i bunny.png -a bk -s y -ac y
 
